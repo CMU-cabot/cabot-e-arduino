@@ -1,5 +1,7 @@
 #include "IMUReader.h"
 
+#define D2R 0.0174532925
+
 static float angle_constrain(float angle){
     while (angle > 180) {
         angle -= 360;
@@ -37,9 +39,9 @@ void IMUReader::update(){
 
     imu::Vector<3> xyz = imu.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 
-    imu_msg.angular_velocity.x = xyz.x();
-    imu_msg.angular_velocity.y = xyz.y();
-    imu_msg.angular_velocity.z = xyz.z();
+    imu_msg.angular_velocity.x = xyz.x()*D2R;
+    imu_msg.angular_velocity.y = xyz.y()*D2R;
+    imu_msg.angular_velocity.z = xyz.z()*D2R;
     
     xyz = imu.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
@@ -50,6 +52,7 @@ void IMUReader::update(){
 
 void IMUReader::publish(ros::NodeHandle &nh){
     this->imu_msg.header.stamp = nh.now();
+    this->imu_msg.header.frame_id = "imu_frame";
 
     this->pub.publish( &imu_msg );
 }
