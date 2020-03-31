@@ -3,6 +3,8 @@
 #include <Timer.h>
 #include "IMUReader.h"
 #include "WrenchReader.h"
+#include "Touch.h"
+
 ros::NodeHandle nh;
 Timer t;
 
@@ -13,9 +15,12 @@ Timer t;
 
 IMUReader imuReader;
 WrenchReader wrenchReader;
+Touch touchReader;
 
 void hearbeat();
 void updateSensors();
+
+bool touch_status = false;
 
 void setup()
 {
@@ -26,6 +31,7 @@ void setup()
     
     nh.advertise(imuReader.get_publisher());
     nh.advertise(wrenchReader.get_publisher());
+    nh.advertise(touchReader.get_publisher());
     
     pinMode(LED_PIN, OUTPUT);
     analogWrite(LED_PIN, 255);
@@ -34,6 +40,7 @@ void setup()
     
     imuReader.realInit();
     wrenchReader.realInit();
+    touch_status = touchReader.init();
     
     t.every(SENSOR_DELAY, updateSensors);
     t.every(HEARTBEAT_DELAY, heartbeat);
@@ -49,11 +56,15 @@ void updateSensors()
 {
     imuReader.update();
     wrenchReader.update();
+    touchReader.getTouched(5);
     
     nh.spinOnce();
     
     imuReader.publish(nh);
     wrenchReader.publish(nh);
+    if(touch_status){
+      touchReader.publish(nh);
+    }
 }
 
 void heartbeat(){
