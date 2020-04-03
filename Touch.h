@@ -16,6 +16,7 @@ public:
     bool init();
     void publish(ros::NodeHandle &nh);
     bool getTouched(int pinNum);
+    int get_velocity(bool status);
 };
 
 #endif //TOUCH_H

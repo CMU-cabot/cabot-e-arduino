@@ -9,11 +9,11 @@ bool Touch::init(){
     // If tied to SDA its 0x5C and if SCL then 0x5D
 
     //first check if MPR121 is plugged in
-    Wire.beginTransmission(0x5A);
-    uint8_t error = Wire.endTransmission();
+    //Wire.beginTransmission(0x5A);
+    //uint8_t error = Wire.endTransmission();
 
-    if (error == 0){ //success, initialize MPR121
-        cap.begin(0x5A);
+    if (cap.begin(0x5A)){ //success, initialize MPR121
+        //cap.begin(0x5A);
         return true;
     }
     else{  //unknown error, return failure
@@ -29,4 +29,8 @@ void Touch::publish(ros::NodeHandle &nh){
 bool Touch::getTouched(int pinNum){
     touchData = cap.touched();
     return (touchData >> pinNum) & 0x1;
+}
+
+int Touch::get_velocity(bool status) {
+  return status ? 20 : 0;
 }
