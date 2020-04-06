@@ -31,6 +31,3 @@ bool Touch::getTouched(int pinNum){
     return (touchData >> pinNum) & 0x1;
 }
 
-int Touch::get_velocity(bool status) {
-  return status ? 20 : 0;
-}
