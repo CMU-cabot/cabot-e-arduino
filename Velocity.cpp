@@ -1,7 +1,7 @@
 #include "Velocity.h"
 
 Velocity::Velocity()
-        : SensorReader("cabot/touch_speed", &vel_msg)
+        : SensorReader("touch_speed", &vel_msg)
 {}
 
 void Velocity::update(bool status) {
