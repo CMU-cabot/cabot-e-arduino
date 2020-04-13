@@ -1,10 +1,9 @@
 #include "WrenchReader.h"
 #include <math.h>
+#include "CabotNodeHandle.h"
 
 WrenchReader::WrenchReader()
-    : SensorReader("wrench", &wrench_msg)
-{
-}
+    : SensorReader("wrench", &wrench_msg){}
 
 void WrenchReader::realInit(){
     pinMode(TORQUE_PIN, INPUT);
@@ -16,7 +15,7 @@ void WrenchReader::update(){
     wrench_msg.wrench.force.x = analogRead(FORCE_PIN);
 }
 
-void WrenchReader::publish(ros::NodeHandle &nh){
+void WrenchReader::publish(CabotNodeHandle &nh){
     wrench_msg.header.stamp = nh.now();
     this->pub.publish( &wrench_msg );
 }
