@@ -5,6 +5,7 @@
 #include "Adafruit_MPR121.h"
 #include "SensorReader.h"
 #include "std_msgs/Int16.h"
+#include "CabotNodeHandle.h"
 
 class Touch : public SensorReader{
     int16_t touchData;
@@ -14,8 +15,9 @@ class Touch : public SensorReader{
 public:
     Touch();
     bool init();
-    void publish(ros::NodeHandle &nh);
+    void publish(CabotNodeHandle &nh);
     bool getTouched(int pinNum);
+    int get_velocity(bool status);
 };
 
 #endif //TOUCH_H

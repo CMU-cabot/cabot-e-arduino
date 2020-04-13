@@ -3,13 +3,14 @@
 
 #include <std_msgs/Float32.h>
 #include "SensorReader.h"
+#include "CabotNodeHandle.h"
 
 class Velocity : public SensorReader {
  public:
   Velocity ();
   ~Velocity () = default;
   void update(bool status);
-  void publish(ros::NodeHandle &nh);
+  void publish(CabotNodeHandle &nh);
  private:
   std_msgs::Float32 vel_msg;
 };
