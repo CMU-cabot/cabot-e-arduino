@@ -40,30 +40,20 @@ WrenchReader wrenchReader;
 Touch touchReader;
 Velocity velPublisher;
 
-int pwm_1;
-int pwm_2;
-int pwm_3;
-int pwm_4;
-
 void num_cb_1( const std_msgs::UInt8& cmd_msg){
-    pwm_1 = cmd_msg.data;
-    analogWrite(PIN_VIB1,cmd_msg.data);
+    analogWrite(PIN_VIB1, cmd_msg.data);
 }
 
-void num_cb_2( const std_msgs::UInt8& cmd_msg){rviz
-
-    pwm_2 = cmd_msg.data;
-    analogWrite(PIN_VIB2,pwm_2);
+void num_cb_2( const std_msgs::UInt8& cmd_msg){
+    analogWrite(PIN_VIB2, cmd_msg.data);
 }
 
 void num_cb_3( const std_msgs::UInt8& cmd_msg){
-    pwm_3 = cmd_msg.data;
-    analogWrite(PIN_VIB3,pwm_3);
+    analogWrite(PIN_VIB3, cmd_msg.data);
 }
 
 void num_cb_4( const std_msgs::UInt8& cmd_msg){
-    pwm_4 = cmd_msg.data;
-    analogWrite(PIN_VIB4,pwm_4);
+    analogWrite(PIN_VIB4, cmd_msg.data);
 }
 
 void hearbeat();
