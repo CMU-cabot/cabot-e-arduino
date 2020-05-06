@@ -49,12 +49,10 @@ void num_cb_2( const std_msgs::UInt8& cmd_msg){
 }
 
 void num_cb_3( const std_msgs::UInt8& cmd_msg){
-    pwm_3 = cmd_msg.data;
     analogWrite(PIN_VIB3, cmd_msg.data);
 }
 
 void num_cb_4( const std_msgs::UInt8& cmd_msg){
-    pwm_4 = cmd_msg.data;
     analogWrite(PIN_VIB4, cmd_msg.data);
 }
 
