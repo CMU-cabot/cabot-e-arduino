@@ -1,5 +1,4 @@
 #include "Touch.h"
-#include "CabotNodeHandle.h"
 
 Touch::Touch()
         : SensorReader("touch", &currTouched) {}
@@ -21,7 +20,7 @@ bool Touch::init(){
     }
 }
 
-void Touch::publish(CabotNodeHandle &nh){
+void Touch::publish(ros::NodeHandle &nh){
     currTouched.data = touchData;
     this->pub.publish( &currTouched );
 }

@@ -1,5 +1,4 @@
 #include "IMUReader.h"
-#include "CabotNodeHandle.h"
 
 #define D2R 0.0174532925
 
@@ -51,7 +50,7 @@ void IMUReader::update(){
     imu_msg.linear_acceleration.z = xyz.z();
 }
 
-void IMUReader::publish(CabotNodeHandle &nh){
+void IMUReader::publish(ros::NodeHandle &nh){
     this->imu_msg.header.stamp = nh.now();
     this->imu_msg.header.frame_id = "imu_frame";
 

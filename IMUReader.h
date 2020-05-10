@@ -6,7 +6,6 @@
 #include <Adafruit_BNO055.h>
 #include <sensor_msgs/Imu.h>
 #include "SensorReader.h"
-#include "CabotNodeHandle.h"
 
 class IMUReader : public SensorReader{
     Adafruit_BNO055 imu = Adafruit_BNO055(55);
@@ -16,7 +15,7 @@ public:
     IMUReader();
     void realInit(float initial_offset = 180);
     void update();
-    void publish(CabotNodeHandle &nh);
+    void publish(ros::NodeHandle &nh);
 };
 
 
