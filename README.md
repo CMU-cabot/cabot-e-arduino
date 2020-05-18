@@ -2,6 +2,8 @@
 
 # Cabot-E-Arduino
 
+This repository is related to the top handle and its components (push buttons, touch sensor, and vibrators) of Cabot. All of these components are connected to an Arduino Mega 2560 board using various connections. The source code found in this repository, will help you to integrate all of these components with the Cabot body. 
+
 ## Pre-requisites
 
 In order to run ROS on Arduino Mega 2560, you will need both the Arduino IDE as well as ROS Serial Arduino Library. Please follow the instructions on the following page for installing these requirements:
