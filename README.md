@@ -2,7 +2,7 @@
 
 # Cabot-E-Arduino
 
-This repository is related to the top handle and its components (push buttons, touch sensor, and vibrators) of Cabot. All of these components are connected to an Arduino Mega 2560 board using various connections. The source code found in this repository, will help you to integrate all of these components with the Cabot body. 
+This repository is related to the top handle and its components (push buttons, touch sensor, and vibrators) of Cabot. The handle is usually 3D printed. All of the components are assembled on the handle and connected to an Arduino Mega 2560 board using various connections (shown beow in the connection diagram). The source code found in this repository, will help you to integrate all of these components with the Cabot body. 
 
 ## Pre-requisites
 
@@ -35,9 +35,9 @@ The following figure explains the manner in which the touch sensor, push buttons
 
 - The Cabot's handle has three main features namely, touch sensor, push buttons (four of them), and vibrators (three of them).
 - The touch sensor is used for giving user feedback to the robot while it is moving, to ensure that the robot moves along with the user without getting lost.
-- The three vibrators are useful for giving alerts to the user in response to obstacles encountered in the front and on the sides of the robot while it is moving.
+- The three vibrators are useful for giving alerts to the user in response to obstacles encountered in the front and on the sides of the robot while it is moving. They also provide alerts/ warnings to the user about upcoming left turns and right turns.
 - The four push butons are useful for giving manual input signals to the robot, to command it to move in preferred directions (forward, backward, left turn, and right turn).
-- The touch sensor is usually a thin film of conductive material like Copper (Cu).
+- The touch sensor is usually connected to a conductive material like copper film, or copper plate.
 
 ## Related repositories
 
