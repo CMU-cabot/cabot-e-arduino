@@ -28,9 +28,12 @@
 #include "SensorReader.h"
 #include "std_msgs/Int16.h"
 
-class Touch : public SensorReader{
+class Touch {
     int16_t touchData;
+    ros::Publisher pub;
+    ros::Publisher pub_raw;
     std_msgs::Int16 currTouched; //each of 12 channels are represented as 1 bit in message
+    std_msgs::Int16 rawData;
     Adafruit_MPR121 cap = Adafruit_MPR121();
 
 public:
@@ -39,6 +42,8 @@ public:
     void publish(ros::NodeHandle &nh);
     bool getTouched(int pinNum);
     int get_velocity(bool status);
+    ros::Publisher& get_publisher(){return pub;}
+    ros::Publisher& get_raw_publisher(){return pub_raw;}
 };
 
 #endif //TOUCH_H

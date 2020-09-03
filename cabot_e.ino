@@ -92,6 +92,7 @@ void setup()
     nh.advertise(imuReader.get_publisher());
     nh.advertise(wrenchReader.get_publisher());
     nh.advertise(touchReader.get_publisher());
+    nh.advertise(touchReader.get_raw_publisher());
     nh.advertise(velPublisher.get_publisher());
 
     nh.advertise(pub_button_1);
@@ -176,7 +177,7 @@ void updateWrench()
 
 void updateTouch()
 {
-    touch_status = touchReader.getTouched(5);
+    touch_status = touchReader.getTouched(0);
     velPublisher.update(touch_status);
     touchReader.publish(nh);
     velPublisher.publish(nh);    

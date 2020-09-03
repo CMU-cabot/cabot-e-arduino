@@ -22,8 +22,7 @@
 
 #include "Touch.h"
 
-Touch::Touch()
-        : SensorReader("touch", &currTouched) {}
+Touch::Touch(): pub("touch", &currTouched), pub_raw("touch_raw", &rawData) {}
 
 bool Touch::init(){
     // Default address is 0x5A, if tied to 3.3V its 0x5B
@@ -33,8 +32,13 @@ bool Touch::init(){
     //Wire.beginTransmission(0x5A);
     //uint8_t error = Wire.endTransmission();
 
-    if (cap.begin(0x5A)){ //success, initialize MPR121
+    if (cap.begin(0x5A, &Wire, 64, 24)){ //success, initialize MPR121, use custom threshold
         //cap.begin(0x5A);
+
+        cap.writeRegister(MPR121_ECR, 0b00000000); // stop mode
+        cap.writeRegister(MPR121_BASELINE_0, 128 >> 2); // set baseline to 128 ( do not remove bit shift)
+        cap.writeRegister(MPR121_ECR, 0b01000001); // use only pin 0
+
         return true;
     }
     else{  //unknown error, return failure
@@ -45,6 +49,9 @@ bool Touch::init(){
 void Touch::publish(ros::NodeHandle &nh){
     currTouched.data = touchData;
     this->pub.publish( &currTouched );
+
+    rawData.data = cap.filteredData(0);
+    this->pub_raw.publish( &rawData );
 }
 
 bool Touch::getTouched(int pinNum){
