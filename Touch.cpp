@@ -32,11 +32,11 @@ bool Touch::init(){
     //Wire.beginTransmission(0x5A);
     //uint8_t error = Wire.endTransmission();
 
-    if (cap.begin(0x5A, &Wire, 64, 24)){ //success, initialize MPR121, use custom threshold
+    if (cap.begin(0x5A, &Wire, 48, 24)){ //success, initialize MPR121, use custom threshold
         //cap.begin(0x5A);
 
         cap.writeRegister(MPR121_ECR, 0b00000000); // stop mode
-        cap.writeRegister(MPR121_BASELINE_0, 128 >> 2); // set baseline to 128 ( do not remove bit shift)
+        cap.writeRegister(MPR121_BASELINE_0, 100 >> 2); // set baseline to 128 ( do not remove bit shift)
         cap.writeRegister(MPR121_ECR, 0b01000001); // use only pin 0
 
         return true;
