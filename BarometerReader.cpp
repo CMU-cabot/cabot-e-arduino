@@ -20,22 +20,40 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef ARDUINO_NODE_SENSORREADER_H
-#define ARDUINO_NODE_SENSORREADER_H
+#include "BarometerReader.h"
 
-#include <ros.h>
-#include <Arduino.h>
+BarometerReader::BarometerReader(ros::NodeHandle &nh):
+  SensorReader(nh),
+  fp_pub_("pressure", &fp_msg_),
+  tmp_pub_("temperature", &tmp_msg_)
+{
+  nh_.advertise(fp_pub_);
+  nh_.advertise(tmp_pub_);
+}
 
-class SensorReader {
-protected:
-  ros::NodeHandle &nh_;
+void BarometerReader::init(){
+  if(!bmp_.begin())
+  {
+    nh_.loginfo("Ooops, no BMP280 detected ... Check your wiring or I2C ADDR!");
+  }
   
-public:
-SensorReader(ros::NodeHandle &nh):
-  nh_(nh)
-  {}
-  virtual void init()=0;
-  virtual void update()=0;
-};
+  bmp_.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+		   Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+		   Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+		   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+		   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
+}
 
-#endif //ARDUINO_NODE_SENSORREADER_H
+void BarometerReader::update(){
+  fp_msg_.fluid_pressure = bmp_.readPressure();
+  fp_msg_.variance = 0;
+  fp_msg_.header.stamp = nh_.now();
+  fp_msg_.header.frame_id = "bmp_frame";
+  fp_pub_.publish( &fp_msg_ );
+  
+  tmp_msg_.temperature = bmp_.readTemperature();
+  tmp_msg_.variance = 0;
+  tmp_msg_.header.stamp = nh_.now();
+  tmp_msg_.header.frame_id = "bmp_frame";
+  tmp_pub_.publish( &tmp_msg_ );
+}

@@ -25,56 +25,55 @@
 #define D2R 0.0174532925
 
 static float angle_constrain(float angle){
-    while (angle > 180) {
-        angle -= 360;
-    }
-    while (angle < -180) {
-    	angle +=360;
-    }
-   	return angle;
+  while (angle > 180) {
+    angle -= 360;
+  }
+  while (angle < -180) {
+    angle +=360;
+  }
+  return angle;
 }
 
-IMUReader::IMUReader()
-        : SensorReader("imu", &imu_msg)
-{}
-
-void IMUReader::realInit(float initial_offset){
-    if(!imu.begin())
-    {
-        Serial.println("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    }
-    this->initial_offset = initial_offset;
-    delay(1000);
-    imu.setExtCrystalUse(true);
-    imu_msg.orientation_covariance[0] = 0.1;
-    imu_msg.orientation_covariance[4] = 0.1;
-    imu_msg.orientation_covariance[8] = 0.1;
+IMUReader::IMUReader(ros::NodeHandle &nh):
+  SensorReader(nh),
+  imu_pub_("imu", &imu_msg_)
+{
+  nh_.advertise(imu_pub_);
 }
 
-void IMUReader::update(){
-    imu::Quaternion q = imu.getQuat();
+void IMUReader::init() {
+  if(!imu_.begin())
+  {
+    nh_.loginfo("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+  }
+  imu_.setExtCrystalUse(true);
+  imu_msg_.orientation_covariance[0] = 0.1;
+  imu_msg_.orientation_covariance[4] = 0.1;
+  imu_msg_.orientation_covariance[8] = 0.1;
+}
 
-    imu_msg.orientation.x = q.x();
-    imu_msg.orientation.y = q.y();
-    imu_msg.orientation.z = q.z();
-    imu_msg.orientation.w = q.w();
+void IMUReader::update() {
+  imu::Quaternion q = imu_.getQuat();
 
-    imu::Vector<3> xyz = imu.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+  imu_msg_.orientation.x = q.x();
+  imu_msg_.orientation.y = q.y();
+  imu_msg_.orientation.z = q.z();
+  imu_msg_.orientation.w = q.w();
 
-    imu_msg.angular_velocity.x = xyz.x()*D2R;
-    imu_msg.angular_velocity.y = xyz.y()*D2R;
-    imu_msg.angular_velocity.z = xyz.z()*D2R;
+  imu::Vector<3> xyz = imu_.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+
+  imu_msg_.angular_velocity.x = xyz.x()*D2R;
+  imu_msg_.angular_velocity.y = xyz.y()*D2R;
+  imu_msg_.angular_velocity.z = xyz.z()*D2R;
     
-    xyz = imu.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  xyz = imu_.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
-    imu_msg.linear_acceleration.x = xyz.x();
-    imu_msg.linear_acceleration.y = xyz.y();
-    imu_msg.linear_acceleration.z = xyz.z();
-}
+  imu_msg_.linear_acceleration.x = xyz.x();
+  imu_msg_.linear_acceleration.y = xyz.y();
+  imu_msg_.linear_acceleration.z = xyz.z();
 
-void IMUReader::publish(ros::NodeHandle &nh){
-    this->imu_msg.header.stamp = nh.now();
-    this->imu_msg.header.frame_id = "imu_frame";
-
-    this->pub.publish( &imu_msg );
+  // publish
+  imu_msg_.header.stamp = nh_.now();
+  imu_msg_.header.frame_id = "imu_frame";
+  imu_pub_.publish( &imu_msg_ );
 }

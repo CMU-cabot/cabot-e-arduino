@@ -20,20 +20,41 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef ARDUINO_NODE_VELOCITY_H
-#define ARDUINO_NODE_VELOCITY_H
+#include "TouchReader.h"
 
-#include <std_msgs/Float32.h>
-#include "SensorReader.h"
+TouchReader::TouchReader(ros::NodeHandle &nh):
+  SensorReader(nh),
+  touch_pub_("touch", &touch_msg_),
+  raw_pub_("touch_raw", &raw_msg_),
+  vel_pub_("touch_speed", &vel_msg_)
+{
+  nh.advertise(touch_pub_);
+  nh.advertise(raw_pub_);
+  nh.advertise(vel_pub_);
+}
 
-class Velocity : public SensorReader {
- public:
-  Velocity ();
-  ~Velocity () = default;
-  void update(bool status);
-  void publish(ros::NodeHandle &nh);
- private:
-  std_msgs::Float32 vel_msg;
-};
+void TouchReader::init(){
+  if (!cap_.begin(0x5A, &Wire, 64, 24)){
+    nh_.loginfo("Ooops, no MPR121 detected ... Check your wiring or I2C ADDR!");
+  }
+  // stop mode
+  cap_.writeRegister(MPR121_ECR, 0b00000000);
+  // set baseline to 128 ( do not remove bit shift)
+  cap_.writeRegister(MPR121_BASELINE_0, 128 >> 2);
+  // use only pin 0
+  cap_.writeRegister(MPR121_ECR, 0b01000001);
+  
+  nh_.loginfo("Touch ready");
+}
 
-#endif // ARDUINO_NODE_VELOCITY_H
+void TouchReader::update() {
+  int touched = cap_.touched();
+  touch_msg_.data = touched;
+  touch_pub_.publish( &touch_msg_ );
+  
+  raw_msg_.data = cap_.filteredData(0);
+  raw_pub_.publish( &raw_msg_ );
+  
+  vel_msg_.data = (touched & 0x01) ? 2.0 : 0;
+  vel_pub_.publish( &vel_msg_ );
+}

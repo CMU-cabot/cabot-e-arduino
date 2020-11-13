@@ -20,22 +20,43 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef CABOT_E_WRENCHREADER_H
-#define CABOT_E_WRENCHREADER_H
+#include "VibratorController.h"
 
-#include <geometry_msgs/WrenchStamped.h>
-#include "SensorReader.h"
+// keep the instance as static for callback
+VibratorController *instance;
 
-#define TORQUE_PIN A0
-#define FORCE_PIN A1
+VibratorController::VibratorController(ros::NodeHandle &nh,
+				       int vib1_pin, int vib2_pin, int vib3_pin, int vib4_pin):
+  SensorReader(nh),
+  vib1_pin_(vib1_pin),
+  vib2_pin_(vib2_pin),
+  vib3_pin_(vib3_pin),
+  vib4_pin_(vib4_pin),
+  vib1_sub_("vibrator1", [](const std_msgs::UInt8& msg) {analogWrite(instance->vib1_pin_, msg.data);}),
+  vib2_sub_("vibrator2", [](const std_msgs::UInt8& msg) {analogWrite(instance->vib2_pin_, msg.data);}),
+  vib3_sub_("vibrator3", [](const std_msgs::UInt8& msg) {analogWrite(instance->vib3_pin_, msg.data);}),
+  vib4_sub_("vibrator4", [](const std_msgs::UInt8& msg) {analogWrite(instance->vib4_pin_, msg.data);})
+{
+  instance = this;
+  nh.subscribe(vib1_sub_);
+  nh.subscribe(vib2_sub_);
+  nh.subscribe(vib3_sub_);
+  nh.subscribe(vib4_sub_);
+}
 
-class WrenchReader : public SensorReader{
-    geometry_msgs::WrenchStamped wrench_msg;
-public:
-    WrenchReader();
-    void realInit();
-    void update();
-    void publish(ros::NodeHandle &nh);
-};
+void VibratorController::init(){
+  pinMode(vib1_pin_, OUTPUT);
+  analogWrite(vib1_pin_,0);
+  
+  pinMode(vib2_pin_, OUTPUT);
+  analogWrite(vib2_pin_,0);
+  
+  pinMode(vib3_pin_, OUTPUT);
+  analogWrite(vib3_pin_,0);
+  
+  pinMode(vib4_pin_, OUTPUT);
+  analogWrite(vib4_pin_,0);
+}
 
-#endif //CABOT_E_WRENCHREADER_H
+void VibratorController::update() {
+}

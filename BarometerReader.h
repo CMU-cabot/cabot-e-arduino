@@ -20,16 +20,27 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#include "Velocity.h"
+#ifndef ARDUINO_NODE_BAROMETER_H
+#define ARDUINO_NODE_BAROMETER_H
 
-Velocity::Velocity()
-        : SensorReader("touch_speed", &vel_msg)
-{}
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/Temperature.h>
+#include "SensorReader.h"
 
-void Velocity::update(bool status) {
-  vel_msg.data = status ? 2.0 : 0.0;;
-}
+class BarometerReader : public SensorReader{
+  Adafruit_BMP280 bmp_;
+  sensor_msgs::FluidPressure fp_msg_;
+  sensor_msgs::Temperature tmp_msg_;
+  ros::Publisher fp_pub_;
+  ros::Publisher tmp_pub_;
 
-void Velocity::publish(ros::NodeHandle &nh){
-    this->pub.publish( &vel_msg );
-}
+public:
+  BarometerReader(ros::NodeHandle &nh);
+  void init();
+  void update();
+};
+
+#endif //ARDUINO_NODE_BAROMETER_H

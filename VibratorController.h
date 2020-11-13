@@ -20,22 +20,26 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef ARDUINO_NODE_SENSORREADER_H
-#define ARDUINO_NODE_SENSORREADER_H
+#ifndef ARDUINO_NODE_VIBRATOR_CONTROLLER_H
+#define ARDUINO_NODE_VIBRATOR_CONTROLLER_H
 
-#include <ros.h>
-#include <Arduino.h>
+#include <Wire.h>
+#include <std_msgs/UInt8.h>
+#include "SensorReader.h"
 
-class SensorReader {
-protected:
-  ros::NodeHandle &nh_;
-  
+class VibratorController: public SensorReader {
+  int vib1_pin_;
+  int vib2_pin_;
+  int vib3_pin_;
+  int vib4_pin_;
+  ros::Subscriber<std_msgs::UInt8> vib1_sub_;
+  ros::Subscriber<std_msgs::UInt8> vib2_sub_;
+  ros::Subscriber<std_msgs::UInt8> vib3_sub_;
+  ros::Subscriber<std_msgs::UInt8> vib4_sub_;
 public:
-SensorReader(ros::NodeHandle &nh):
-  nh_(nh)
-  {}
-  virtual void init()=0;
-  virtual void update()=0;
+  VibratorController(ros::NodeHandle &nh, int vib1_pin, int vib2_pin, int vib3_pin, int vib4_pin);
+  void init();
+  void update();
 };
 
-#endif //ARDUINO_NODE_SENSORREADER_H
+#endif //ARDUINO_NODE_VIBRATOR_CONTROLLER_H

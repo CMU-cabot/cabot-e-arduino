@@ -29,15 +29,14 @@
 #include <sensor_msgs/Imu.h>
 #include "SensorReader.h"
 
-class IMUReader : public SensorReader{
-    Adafruit_BNO055 imu = Adafruit_BNO055(55);
-    sensor_msgs::Imu imu_msg;
-    float initial_offset;
+class IMUReader: public SensorReader {
+  Adafruit_BNO055 imu_;
+  sensor_msgs::Imu imu_msg_;
+  ros::Publisher imu_pub_;
 public:
-    IMUReader();
-    void realInit(float initial_offset = 180);
-    void update();
-    void publish(ros::NodeHandle &nh);
+  IMUReader(ros::NodeHandle &nh);
+  void init();
+  void update();
 };
 
 

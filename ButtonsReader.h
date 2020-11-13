@@ -20,45 +20,30 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#include "Touch.h"
+#ifndef ARDUINO_NODE_BUTTONS_READER_H
+#define ARDUINO_NODE_BUTTONS_READER_H
 
-Touch::Touch(): pub("touch", &currTouched), pub_raw("touch_raw", &rawData) {}
+#include <Wire.h>
+#include <std_msgs/Bool.h>
+#include "SensorReader.h"
 
-bool Touch::init(){
-    // Default address is 0x5A, if tied to 3.3V its 0x5B
-    // If tied to SDA its 0x5C and if SCL then 0x5D
+class ButtonsReader: public SensorReader {
+  int b1_pin_;
+  int b2_pin_;
+  int b3_pin_;
+  int b4_pin_;
+  ros::Publisher b1_pub_;
+  ros::Publisher b2_pub_;
+  ros::Publisher b3_pub_;
+  ros::Publisher b4_pub_;
+  std_msgs::Bool b1_msg_;
+  std_msgs::Bool b2_msg_;
+  std_msgs::Bool b3_msg_;
+  std_msgs::Bool b4_msg_;
+public:
+  ButtonsReader(ros::NodeHandle &nh, int b1_pin, int b2_pin, int b3_pin, int b4_pin);
+  void init();
+  void update();
+};
 
-    //first check if MPR121 is plugged in
-    //Wire.beginTransmission(0x5A);
-    //uint8_t error = Wire.endTransmission();
-
-    if (cap.begin(0x5A, &Wire, 64, 24)){ //success, initialize MPR121, use custom threshold
-        //cap.begin(0x5A);
-
-        cap.writeRegister(MPR121_ECR, 0b00000000); // stop mode
-        cap.writeRegister(MPR121_BASELINE_0, 128 >> 2); // set baseline to 128 ( do not remove bit shift)
-        cap.writeRegister(MPR121_ECR, 0b01000001); // use only pin 0
-
-        return true;
-    }
-    else{  //unknown error, return failure
-        return false;
-    }
-}
-
-void Touch::publish(ros::NodeHandle &nh){
-    currTouched.data = touchData;
-    this->pub.publish( &currTouched );
-
-    rawData.data = cap.filteredData(0);
-    this->pub_raw.publish( &rawData );
-}
-
-bool Touch::getTouched(int pinNum){
-    touchData = cap.touched();
-    return (touchData >> pinNum) & 0x1;
-}
-
-int Touch::get_velocity(bool status) {
-  return status ? 20 : 0;
-}
+#endif //ARDUINO_NODE_BUTTONS_READER_H

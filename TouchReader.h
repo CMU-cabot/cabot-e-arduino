@@ -20,30 +20,29 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef TOUCH_H
-#define TOUCH_H
+#ifndef ARDUINO_NODE_TOUCH_READER_H
+#define ARDUINO_NODE_TOUCH_READER_H
 
 #include <Wire.h>
-#include "Adafruit_MPR121.h"
+#include <Adafruit_MPR121.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/Float32.h>
 #include "SensorReader.h"
-#include "std_msgs/Int16.h"
 
-class Touch {
-    int16_t touchData;
-    ros::Publisher pub;
-    ros::Publisher pub_raw;
-    std_msgs::Int16 currTouched; //each of 12 channels are represented as 1 bit in message
-    std_msgs::Int16 rawData;
-    Adafruit_MPR121 cap = Adafruit_MPR121();
+class TouchReader: public SensorReader {
+  Adafruit_MPR121 cap_;
+  int16_t touched_;
+  ros::Publisher touch_pub_;
+  ros::Publisher raw_pub_;
+  ros::Publisher vel_pub_;
+  std_msgs::Int16 touch_msg_; //each of 12 channels are represented as 1 bit in message
+  std_msgs::Int16 raw_msg_;
+  std_msgs::Float32 vel_msg_;
 
 public:
-    Touch();
-    bool init();
-    void publish(ros::NodeHandle &nh);
-    bool getTouched(int pinNum);
-    int get_velocity(bool status);
-    ros::Publisher& get_publisher(){return pub;}
-    ros::Publisher& get_raw_publisher(){return pub_raw;}
+  TouchReader(ros::NodeHandle &nh);
+  void init();
+  void update();
 };
 
-#endif //TOUCH_H
+#endif //ARDUINO_NODE_TOUCH_READER_H
