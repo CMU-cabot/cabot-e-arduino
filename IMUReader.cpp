@@ -24,19 +24,9 @@
 
 #define D2R 0.0174532925
 
-static float angle_constrain(float angle){
-  while (angle > 180) {
-    angle -= 360;
-  }
-  while (angle < -180) {
-    angle +=360;
-  }
-  return angle;
-}
-
 IMUReader::IMUReader(ros::NodeHandle &nh):
   SensorReader(nh),
-  imu_pub_("imu", &imu_msg_)
+  imu_pub_("imu_raw", &imu_msg_)
 {
   nh_.advertise(imu_pub_);
 }
@@ -47,33 +37,36 @@ void IMUReader::init() {
     nh_.loginfo("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
   }
   imu_.setExtCrystalUse(true);
-  imu_msg_.orientation_covariance[0] = 0.1;
-  imu_msg_.orientation_covariance[4] = 0.1;
-  imu_msg_.orientation_covariance[8] = 0.1;
+
+  // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
+  imu_msg_.data = malloc(sizeof(float)*12);
+  imu_msg_.data_length = 12;
 }
 
 void IMUReader::update() {
+  // put int32 as float32
+  imu_msg_.data[0] = *((float*)(&nh_.now().sec));
+  imu_msg_.data[1] = *((float*)(&nh_.now().nsec));
+  
   imu::Quaternion q = imu_.getQuat();
 
-  imu_msg_.orientation.x = q.x();
-  imu_msg_.orientation.y = q.y();
-  imu_msg_.orientation.z = q.z();
-  imu_msg_.orientation.w = q.w();
+  imu_msg_.data[2] = q.x();
+  imu_msg_.data[3] = q.y();
+  imu_msg_.data[4] = q.z();
+  imu_msg_.data[5] = q.w();
 
   imu::Vector<3> xyz = imu_.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 
-  imu_msg_.angular_velocity.x = xyz.x()*D2R;
-  imu_msg_.angular_velocity.y = xyz.y()*D2R;
-  imu_msg_.angular_velocity.z = xyz.z()*D2R;
+  imu_msg_.data[6] = xyz.x()*D2R;
+  imu_msg_.data[7] = xyz.y()*D2R;
+  imu_msg_.data[8] = xyz.z()*D2R;
     
   xyz = imu_.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
-  imu_msg_.linear_acceleration.x = xyz.x();
-  imu_msg_.linear_acceleration.y = xyz.y();
-  imu_msg_.linear_acceleration.z = xyz.z();
+  imu_msg_.data[9] = xyz.x();
+  imu_msg_.data[10] = xyz.y();
+  imu_msg_.data[11] = xyz.z();
 
   // publish
-  imu_msg_.header.stamp = nh_.now();
-  imu_msg_.header.frame_id = "imu_frame";
   imu_pub_.publish( &imu_msg_ );
 }

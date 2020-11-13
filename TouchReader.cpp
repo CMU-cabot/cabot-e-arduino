@@ -33,10 +33,21 @@ TouchReader::TouchReader(ros::NodeHandle &nh):
   nh.advertise(vel_pub_);
 }
 
-void TouchReader::init(){
-  if (!cap_.begin(0x5A, &Wire, 64, 24)){
+void TouchReader::init() {
+  if (!cap_.begin(0x5A)) {
     nh_.loginfo("Ooops, no MPR121 detected ... Check your wiring or I2C ADDR!");
   }
+  set_mode();
+}
+
+void TouchReader::init(uint8_t touch_threshold, uint8_t release_threshold) {
+  if (!cap_.begin(0x5A, &Wire, touch_threshold, release_threshold)){
+    nh_.loginfo("Ooops, no MPR121 detected ... Check your wiring or I2C ADDR!");
+  }
+  set_mode();
+}
+
+void TouchReader::set_mode() {
   // stop mode
   cap_.writeRegister(MPR121_ECR, 0b00000000);
   // set baseline to 128 ( do not remove bit shift)

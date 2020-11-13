@@ -26,12 +26,12 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
-#include <sensor_msgs/Imu.h>
+#include <std_msgs/Float32MultiArray.h>
 #include "SensorReader.h"
 
 class IMUReader: public SensorReader {
   Adafruit_BNO055 imu_;
-  sensor_msgs::Imu imu_msg_;
+  std_msgs::Float32MultiArray imu_msg_;
   ros::Publisher imu_pub_;
 public:
   IMUReader(ros::NodeHandle &nh);

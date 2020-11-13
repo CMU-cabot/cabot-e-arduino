@@ -21,11 +21,7 @@
  *******************************************************************************/
 
 #include <ros.h>
-#if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
-#else
-#include <WProgram.h>
-#endif
 #include <Timer.h>
 
 #include "BarometerReader.h"
@@ -35,11 +31,10 @@
 #include "TouchReader.h"
 #include "VibratorController.h"
 
-using namespace std;
-
 ros::NodeHandle nh;
 Timer timer;
 
+// configurations
 #define BAUDRATE (115200)
 
 #define LED_PIN (13)
@@ -55,34 +50,43 @@ Timer timer;
 #define VIB4_PIN (9)   //right
 #define VIB2_PIN (6)   //back //not using
 
+#define TOUCH_THRESHOLD_DEFAULT (64)
+#define RELEASE_THRESHOLD_DEFAULT (24)
+
+// sensors
 BarometerReader bmpReader(nh);
 ButtonsReader buttonsReader(nh, BTN1_PIN, BTN2_PIN, BTN3_PIN, BTN4_PIN);
 IMUReader imuReader(nh);
 TouchReader touchReader(nh);
 VibratorController vibratorController(nh, VIB1_PIN, VIB2_PIN, VIB3_PIN, VIB4_PIN);
-
 Heartbeat heartbeat(LED_PIN, HEARTBEAT_DELAY);
-
 
 void setup()
 {
   // set baud rate
   nh.getHardware()->setBaud(BAUDRATE);
-  nh.initNode();
 
+  // connect to rosserial
+  nh.initNode();
   while(!nh.connected()) {nh.spinOnce();}
-    
+
+  int touch_threshold;
+  int release_threshold;
+  nh.getParam("~touch_threshold", &touch_threshold);
+  nh.getParam("~release_threshold", &release_threshold);
+
+  // initialize
   bmpReader.init();
   buttonsReader.init();
   imuReader.init();
-  touchReader.init();
+  touchReader.init(touch_threshold, release_threshold);
   vibratorController.init();
-
   heartbeat.init();
   
   // wait sensors ready
-  delay(1000);
+  delay(100);
 
+  // set timers
   timer.every(500, [](){
       bmpReader.update();
     });
