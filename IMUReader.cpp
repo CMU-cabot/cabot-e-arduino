@@ -35,7 +35,9 @@ void IMUReader::init() {
   if(!imu_.begin())
   {
     nh_.loginfo("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    return;
   }
+  initialized_ = true;
   imu_.setExtCrystalUse(true);
 
   // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
@@ -44,6 +46,9 @@ void IMUReader::init() {
 }
 
 void IMUReader::update() {
+  if (!initialized_) {
+    return;
+  }
   // put int32 as float32
   imu_msg_.data[0] = *((float*)(&nh_.now().sec));
   imu_msg_.data[1] = *((float*)(&nh_.now().nsec));

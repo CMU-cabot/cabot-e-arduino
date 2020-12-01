@@ -29,10 +29,12 @@
 class SensorReader {
 protected:
   ros::NodeHandle &nh_;
+  bool initialized_;
   
 public:
 SensorReader(ros::NodeHandle &nh):
-  nh_(nh)
+  nh_(nh),
+  initialized_(false)
   {}
   virtual void init()=0;
   virtual void update()=0;

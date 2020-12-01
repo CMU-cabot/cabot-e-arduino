@@ -50,6 +50,7 @@ Timer timer;
 #define VIB4_PIN (9)   //right
 #define VIB2_PIN (6)   //back //not using
 
+#define TOUCH_BASELINE (128)
 #define TOUCH_THRESHOLD_DEFAULT (64)
 #define RELEASE_THRESHOLD_DEFAULT (24)
 
@@ -70,16 +71,40 @@ void setup()
   nh.initNode();
   while(!nh.connected()) {nh.spinOnce();}
 
+  int touch_params[3];
+  int touch_baseline;
   int touch_threshold;
   int release_threshold;
-  nh.getParam("~touch_threshold", &touch_threshold);
-  nh.getParam("~release_threshold", &release_threshold);
+  if (!nh.getParam("~touch_params", touch_params, 3, 500)) {
+    nh.logwarn("Please use touch_params:=[baseline,touch,release] format to set touch params");
+    touch_baseline = TOUCH_BASELINE;
+    if (nh.getParam("~touch_threshold", &touch_threshold, 1, 500)) {
+      nh.logwarn("touch_threshold is depricated");
+    } else {
+      touch_threshold = TOUCH_THRESHOLD_DEFAULT;
+    }
+    if (nh.getParam("~release_threshold", &release_threshold, 1, 500)) {
+      nh.logwarn("release_threshold is depricated");
+    } else {
+      release_threshold = RELEASE_THRESHOLD_DEFAULT;
+    }
+
+    nh.logwarn(" touched  if the raw value is less   than touch_params[0] - touch_params[1]");
+    nh.logwarn(" released if the raw value is higher than touch_params[0] - touch_params[2]");
+  } else {
+    touch_baseline = touch_params[0];
+    touch_threshold = touch_params[1];
+    release_threshold = touch_params[2];
+  }
+  char default_values[128];
+  sprintf(default_values, "Using [%d, %d, %d] for touch_params", touch_baseline, touch_threshold, release_threshold);
+  nh.loginfo(default_values);
 
   // initialize
   bmpReader.init();
   buttonsReader.init();
   imuReader.init();
-  touchReader.init(touch_threshold, release_threshold);
+  touchReader.init(touch_baseline, touch_threshold, release_threshold);
   vibratorController.init();
   heartbeat.init();
   

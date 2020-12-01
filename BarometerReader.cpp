@@ -35,7 +35,9 @@ void BarometerReader::init(){
   if(!bmp_.begin())
   {
     nh_.loginfo("Ooops, no BMP280 detected ... Check your wiring or I2C ADDR!");
+    return;
   }
+  initialized_ = true;
   
   bmp_.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
 		   Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
@@ -45,6 +47,9 @@ void BarometerReader::init(){
 }
 
 void BarometerReader::update(){
+  if (!initialized_) {
+    return;
+  }
   fp_msg_.fluid_pressure = bmp_.readPressure();
   fp_msg_.variance = 0;
   fp_msg_.header.stamp = nh_.now();

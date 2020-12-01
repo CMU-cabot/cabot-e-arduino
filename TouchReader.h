@@ -42,10 +42,10 @@ class TouchReader: public SensorReader {
 public:
   TouchReader(ros::NodeHandle &nh);
   void init();
-  void init(uint8_t touch_threshold, uint8_t release_threshold);
+  void init(uint8_t touch_baseline, uint8_t touch_threshold, uint8_t release_threshold);
   void update();
 private:
-  void set_mode();
+  void set_mode(uint8_t touch_baseline);
 };
 
 #endif //ARDUINO_NODE_TOUCH_READER_H
