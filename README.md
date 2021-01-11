@@ -1,23 +1,25 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Cabot-E-Arduino
+# Cabot-Arduino
 
-This repository is related to the top handle and its components (push buttons, touch sensor, and vibrators) of Cabot. The handle is usually 3D printed. All of the components are assembled on the handle and connected to an Arduino Mega 2560 board using various connections (shown beow in the connection diagram). The source code found in this repository, will help you to integrate all of these components with the Cabot body. 
+This repository contains an Arduino project for CaBot, managaing sensors and the handle.
 
 ## Pre-requisites
 
 ### Hardware
 
-One example of hardware components to build the handle.
+One example of hardware components
 
 - [3D print parts](https://github.com/CMU-cabot/cabot_design/tree/master/cabot2_e2/handle)
 - [Arduino Mega 2560](https://store.arduino.cc/usa/mega-2560-r3)
 - [MPR121](https://www.adafruit.com/product/1982) capacitive touch sensor
+- [BNG055](https://www.adafruit.com/product/2472) 9-axis IMU
+- [BMP280](https://www.adafruit.com/product/2651) Barometric Pressure & Altitude Sensor
 - [PCB shield example](https://github.com/RealCabot/simplePCB.git)
-  - This Arduino shield is derived from an earlier project. It also has IMU and motor controllers, but here we will use it for the capacitive touch sensor
+  - This Arduino shield is derived from an earlier project. It includes motor controllers, but here we will use it for IMU and touch sensor (does not include barometric pressure sensor part)
 - 4 [push buttons](https://www.adafruit.com/product/4183)
 - 3 [mini disc vibrators](https://www.adafruit.com/product/1201)
-- [Copper foil tape](https://www.adafruit.com/product/3483)
+- Conductive Material (ex. [Copper foil tape](https://www.adafruit.com/product/3483))
 - Wires and headers
 
 ### Software
@@ -34,6 +36,7 @@ git clone https://github.com/adafruit/Adafruit_BNO055.git
 git clone https://github.com/adafruit/Adafruit_Sensor.git
 git clone https://github.com/adafruit/Adafruit_ADXL343.git
 git clone https://github.com/adafruit/Adafruit_MPR121.git
+git clone https://github.com/adafruit/Adafruit_BMP280.git
 git clone https://github.com/JChristensen/Timer.git
 git clone https://github.com/frankjoshua/rosserial_arduino_lib.git
 rosrun rosserial_arduino make_libraries.py ~/Arduino
@@ -44,7 +47,7 @@ rosrun rosserial_arduino make_libraries.py ~/Arduino
 The following figure explains the manner in which the touch sensor, push buttons and vibrators are supposed to be connected with Arduino Mega 2560.
 
 <p align="center">
-  <img width="800" height="800" src="figures/Arduino_Shield_Connection-Cabot.png">
+  <img src="figures/Arduino_shield.svg">
 </p>
 
 ## Components description
