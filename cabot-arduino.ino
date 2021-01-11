@@ -37,7 +37,6 @@ Timer timer;
 // configurations
 #define BAUDRATE (115200)
 
-#define LED_PIN (13)
 #define HEARTBEAT_DELAY (20)
 
 #define BTN1_PIN (2) // up
@@ -46,9 +45,9 @@ Timer timer;
 #define BTN4_PIN (5) // right
 
 #define VIB1_PIN (11)  //front
+#define VIB2_PIN (6)   //back //not using
 #define VIB3_PIN (10)  //left
 #define VIB4_PIN (9)   //right
-#define VIB2_PIN (6)   //back //not using
 
 #define TOUCH_BASELINE (128)
 #define TOUCH_THRESHOLD_DEFAULT (64)
@@ -59,8 +58,10 @@ BarometerReader bmpReader(nh);
 ButtonsReader buttonsReader(nh, BTN1_PIN, BTN2_PIN, BTN3_PIN, BTN4_PIN);
 IMUReader imuReader(nh);
 TouchReader touchReader(nh);
+
+// controllers
 VibratorController vibratorController(nh, VIB1_PIN, VIB2_PIN, VIB3_PIN, VIB4_PIN);
-Heartbeat heartbeat(LED_PIN, HEARTBEAT_DELAY);
+Heartbeat heartbeat(LED_BUILTIN, HEARTBEAT_DELAY);
 
 void setup()
 {
