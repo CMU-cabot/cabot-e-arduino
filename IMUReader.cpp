@@ -41,7 +41,7 @@ void IMUReader::init() {
   imu_.setExtCrystalUse(true);
 
   // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
-  imu_msg_.data = malloc(sizeof(float)*12);
+  imu_msg_.data = (float*)malloc(sizeof(float)*12);
   imu_msg_.data_length = 12;
 }
 
@@ -50,8 +50,9 @@ void IMUReader::update() {
     return;
   }
   // put int32 as float32
-  imu_msg_.data[0] = *((float*)(&nh_.now().sec));
-  imu_msg_.data[1] = *((float*)(&nh_.now().nsec));
+  auto timestamp = nh_.now();
+  imu_msg_.data[0] = *((float*)(&timestamp.sec));
+  imu_msg_.data[1] = *((float*)(&timestamp.nsec));
   
   imu::Quaternion q = imu_.getQuat();
 
