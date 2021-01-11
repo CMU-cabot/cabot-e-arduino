@@ -44,7 +44,7 @@ rosrun rosserial_arduino make_libraries.py ~/Arduino
 The following figure explains the manner in which the touch sensor, push buttons and vibrators are supposed to be connected with Arduino Mega 2560.
 
 <p align="center">
-  <img width="800" height="800" src="figures/Arduino_Shield_Connection-Cabot.png">
+  <img src="figures/Arduino_shield.svg">
 </p>
 
 ## Components description
