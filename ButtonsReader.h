@@ -20,25 +20,30 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef TOUCH_H
-#define TOUCH_H
+#ifndef ARDUINO_NODE_BUTTONS_READER_H
+#define ARDUINO_NODE_BUTTONS_READER_H
 
 #include <Wire.h>
-#include "Adafruit_MPR121.h"
+#include <std_msgs/Bool.h>
 #include "SensorReader.h"
-#include "std_msgs/Int16.h"
 
-class Touch : public SensorReader{
-    int16_t touchData;
-    std_msgs::Int16 currTouched; //each of 12 channels are represented as 1 bit in message
-    Adafruit_MPR121 cap = Adafruit_MPR121();
-
+class ButtonsReader: public SensorReader {
+  int b1_pin_;
+  int b2_pin_;
+  int b3_pin_;
+  int b4_pin_;
+  ros::Publisher b1_pub_;
+  ros::Publisher b2_pub_;
+  ros::Publisher b3_pub_;
+  ros::Publisher b4_pub_;
+  std_msgs::Bool b1_msg_;
+  std_msgs::Bool b2_msg_;
+  std_msgs::Bool b3_msg_;
+  std_msgs::Bool b4_msg_;
 public:
-    Touch();
-    bool init();
-    void publish(ros::NodeHandle &nh);
-    bool getTouched(int pinNum);
-    int get_velocity(bool status);
+  ButtonsReader(ros::NodeHandle &nh, int b1_pin, int b2_pin, int b3_pin, int b4_pin);
+  void init();
+  void update();
 };
 
-#endif //TOUCH_H
+#endif //ARDUINO_NODE_BUTTONS_READER_H

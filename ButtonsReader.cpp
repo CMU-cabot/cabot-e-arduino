@@ -20,59 +20,53 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#include "IMUReader.h"
+#include "ButtonsReader.h"
 
-#define D2R 0.0174532925
-
-IMUReader::IMUReader(ros::NodeHandle &nh):
+ButtonsReader::ButtonsReader(ros::NodeHandle &nh, int b1_pin, int b2_pin, int b3_pin, int b4_pin):
   SensorReader(nh),
-  imu_pub_("imu_raw", &imu_msg_)
+  b1_pin_(b1_pin),
+  b2_pin_(b2_pin),
+  b3_pin_(b3_pin),
+  b4_pin_(b4_pin),
+  b1_pub_("pushed_1", &b1_msg_),
+  b2_pub_("pushed_2", &b2_msg_),
+  b3_pub_("pushed_3", &b3_msg_),
+  b4_pub_("pushed_4", &b4_msg_)
 {
-  nh_.advertise(imu_pub_);
+  nh.advertise(b1_pub_);
+  nh.advertise(b2_pub_);
+  nh.advertise(b3_pub_);
+  nh.advertise(b4_pub_);
 }
 
-void IMUReader::init() {
-  if(!imu_.begin())
-  {
-    nh_.loginfo("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    return;
-  }
-  initialized_ = true;
-  imu_.setExtCrystalUse(true);
-
-  // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
-  imu_msg_.data = (float*)malloc(sizeof(float)*12);
-  imu_msg_.data_length = 12;
+void ButtonsReader::init(){
+  pinMode(b1_pin_, INPUT_PULLUP);
+  pinMode(b2_pin_, INPUT_PULLUP);
+  pinMode(b3_pin_, INPUT_PULLUP);
+  pinMode(b4_pin_, INPUT_PULLUP);
 }
 
-void IMUReader::update() {
-  if (!initialized_) {
-    return;
+void ButtonsReader::update() {
+  bool reading_1 = !digitalRead(b1_pin_);
+  bool reading_2 = !digitalRead(b2_pin_);
+  bool reading_3 = !digitalRead(b3_pin_);
+  bool reading_4 = !digitalRead(b4_pin_);
+
+  for(int i = 0; i < 10; i++) {
+    delayMicroseconds(10);
+    reading_1 = reading_1 && !digitalRead(b1_pin_);
+    reading_2 = reading_2 && !digitalRead(b2_pin_);
+    reading_3 = reading_3 && !digitalRead(b3_pin_);  
+    reading_4 = reading_4 && !digitalRead(b4_pin_);  
   }
-  // put int32 as float32
-  auto timestamp = nh_.now();
-  imu_msg_.data[0] = *((float*)(&timestamp.sec));
-  imu_msg_.data[1] = *((float*)(&timestamp.nsec));
   
-  imu::Quaternion q = imu_.getQuat();
-
-  imu_msg_.data[2] = q.x();
-  imu_msg_.data[3] = q.y();
-  imu_msg_.data[4] = q.z();
-  imu_msg_.data[5] = q.w();
-
-  imu::Vector<3> xyz = imu_.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-
-  imu_msg_.data[6] = xyz.x()*D2R;
-  imu_msg_.data[7] = xyz.y()*D2R;
-  imu_msg_.data[8] = xyz.z()*D2R;
-    
-  xyz = imu_.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-
-  imu_msg_.data[9] = xyz.x();
-  imu_msg_.data[10] = xyz.y();
-  imu_msg_.data[11] = xyz.z();
-
-  // publish
-  imu_pub_.publish( &imu_msg_ );
+  b1_msg_.data = reading_1;
+  b2_msg_.data = reading_2;
+  b3_msg_.data = reading_3;
+  b4_msg_.data = reading_4;
+        
+  b1_pub_.publish(&b1_msg_);
+  b2_pub_.publish(&b2_msg_);  
+  b3_pub_.publish(&b3_msg_);
+  b4_pub_.publish(&b4_msg_); 
 }

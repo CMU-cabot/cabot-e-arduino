@@ -20,20 +20,27 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef ARDUINO_NODE_VELOCITY_H
-#define ARDUINO_NODE_VELOCITY_H
+#ifndef ARDUINO_NODE_BAROMETER_H
+#define ARDUINO_NODE_BAROMETER_H
 
-#include <std_msgs/Float32.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/Temperature.h>
 #include "SensorReader.h"
 
-class Velocity : public SensorReader {
- public:
-  Velocity ();
-  ~Velocity () = default;
-  void update(bool status);
-  void publish(ros::NodeHandle &nh);
- private:
-  std_msgs::Float32 vel_msg;
+class BarometerReader : public SensorReader{
+  Adafruit_BMP280 bmp_;
+  sensor_msgs::FluidPressure fp_msg_;
+  sensor_msgs::Temperature tmp_msg_;
+  ros::Publisher fp_pub_;
+  ros::Publisher tmp_pub_;
+
+public:
+  BarometerReader(ros::NodeHandle &nh);
+  void init();
+  void update();
 };
 
-#endif // ARDUINO_NODE_VELOCITY_H
+#endif //ARDUINO_NODE_BAROMETER_H

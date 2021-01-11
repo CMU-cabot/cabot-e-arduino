@@ -20,38 +20,45 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#include "Touch.h"
+#include "BarometerReader.h"
 
-Touch::Touch()
-        : SensorReader("touch", &currTouched) {}
-
-bool Touch::init(){
-    // Default address is 0x5A, if tied to 3.3V its 0x5B
-    // If tied to SDA its 0x5C and if SCL then 0x5D
-
-    //first check if MPR121 is plugged in
-    //Wire.beginTransmission(0x5A);
-    //uint8_t error = Wire.endTransmission();
-
-    if (cap.begin(0x5A)){ //success, initialize MPR121
-        //cap.begin(0x5A);
-        return true;
-    }
-    else{  //unknown error, return failure
-        return false;
-    }
+BarometerReader::BarometerReader(ros::NodeHandle &nh):
+  SensorReader(nh),
+  fp_pub_("pressure", &fp_msg_),
+  tmp_pub_("temperature", &tmp_msg_)
+{
+  nh_.advertise(fp_pub_);
+  nh_.advertise(tmp_pub_);
 }
 
-void Touch::publish(ros::NodeHandle &nh){
-    currTouched.data = touchData;
-    this->pub.publish( &currTouched );
+void BarometerReader::init(){
+  if(!bmp_.begin())
+  {
+    nh_.loginfo("Ooops, no BMP280 detected ... Check your wiring or I2C ADDR!");
+    return;
+  }
+  initialized_ = true;
+  
+  bmp_.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+		   Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+		   Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+		   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+		   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 }
 
-bool Touch::getTouched(int pinNum){
-    touchData = cap.touched();
-    return (touchData >> pinNum) & 0x1;
-}
-
-int Touch::get_velocity(bool status) {
-  return status ? 20 : 0;
+void BarometerReader::update(){
+  if (!initialized_) {
+    return;
+  }
+  fp_msg_.fluid_pressure = bmp_.readPressure();
+  fp_msg_.variance = 0;
+  fp_msg_.header.stamp = nh_.now();
+  fp_msg_.header.frame_id = "bmp_frame";
+  fp_pub_.publish( &fp_msg_ );
+  
+  tmp_msg_.temperature = bmp_.readTemperature();
+  tmp_msg_.variance = 0;
+  tmp_msg_.header.stamp = nh_.now();
+  tmp_msg_.header.frame_id = "bmp_frame";
+  tmp_pub_.publish( &tmp_msg_ );
 }

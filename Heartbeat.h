@@ -20,23 +20,32 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#include "WrenchReader.h"
-#include <math.h>
+#ifndef ARDUINO_NODE_HEARTBEAT_H
+#define ARDUINO_NODE_HEARTBEAT_H
 
-WrenchReader::WrenchReader()
-    : SensorReader("wrench", &wrench_msg){}
+#include <Arduino.h>
 
-void WrenchReader::realInit(){
-    pinMode(TORQUE_PIN, INPUT);
-    pinMode(FORCE_PIN, INPUT);
-}
+class Heartbeat {
+  int led_pin_;
+  int delay_;
+  int status_;
+public:
+Heartbeat(int led_pin, int delay):
+  led_pin_(led_pin),
+  delay_(delay),
+  status_(0)
+  {
+  }
 
-void WrenchReader::update(){
-    wrench_msg.wrench.torque.x = analogRead(TORQUE_PIN);
-    wrench_msg.wrench.force.x = analogRead(FORCE_PIN);
-}
+  void init() {
+    pinMode(led_pin_, OUTPUT);
+    analogWrite(led_pin_, 0xff);
+  }
 
-void WrenchReader::publish(ros::NodeHandle &nh){
-    wrench_msg.header.stamp = nh.now();
-    this->pub.publish( &wrench_msg );
-}
+  void update() {
+    status_ = status_+1;
+    analogWrite(led_pin_, sin(6.28 * status_ * delay_ / 1000.0) * 127 + 127);
+  }
+};
+
+#endif // ARDUINO_NODE_HEARTBEAT_H

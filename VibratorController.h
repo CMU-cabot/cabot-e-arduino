@@ -20,22 +20,26 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#ifndef CABOT_E_WRENCHREADER_H
-#define CABOT_E_WRENCHREADER_H
+#ifndef ARDUINO_NODE_VIBRATOR_CONTROLLER_H
+#define ARDUINO_NODE_VIBRATOR_CONTROLLER_H
 
-#include <geometry_msgs/WrenchStamped.h>
+#include <Wire.h>
+#include <std_msgs/UInt8.h>
 #include "SensorReader.h"
 
-#define TORQUE_PIN A0
-#define FORCE_PIN A1
-
-class WrenchReader : public SensorReader{
-    geometry_msgs::WrenchStamped wrench_msg;
+class VibratorController: public SensorReader {
+  int vib1_pin_;
+  int vib2_pin_;
+  int vib3_pin_;
+  int vib4_pin_;
+  ros::Subscriber<std_msgs::UInt8> vib1_sub_;
+  ros::Subscriber<std_msgs::UInt8> vib2_sub_;
+  ros::Subscriber<std_msgs::UInt8> vib3_sub_;
+  ros::Subscriber<std_msgs::UInt8> vib4_sub_;
 public:
-    WrenchReader();
-    void realInit();
-    void update();
-    void publish(ros::NodeHandle &nh);
+  VibratorController(ros::NodeHandle &nh, int vib1_pin, int vib2_pin, int vib3_pin, int vib4_pin);
+  void init();
+  void update();
 };
 
-#endif //CABOT_E_WRENCHREADER_H
+#endif //ARDUINO_NODE_VIBRATOR_CONTROLLER_H

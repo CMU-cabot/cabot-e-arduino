@@ -20,59 +20,59 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
-#include "IMUReader.h"
+#include "TouchReader.h"
 
-#define D2R 0.0174532925
-
-IMUReader::IMUReader(ros::NodeHandle &nh):
+TouchReader::TouchReader(ros::NodeHandle &nh):
   SensorReader(nh),
-  imu_pub_("imu_raw", &imu_msg_)
+  touch_pub_("touch", &touch_msg_),
+  raw_pub_("touch_raw", &raw_msg_),
+  vel_pub_("touch_speed", &vel_msg_)
 {
-  nh_.advertise(imu_pub_);
+  nh.advertise(touch_pub_);
+  nh.advertise(raw_pub_);
+  nh.advertise(vel_pub_);
 }
 
-void IMUReader::init() {
-  if(!imu_.begin())
-  {
-    nh_.loginfo("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+void TouchReader::init() {
+  if (!cap_.begin(0x5A)) {
+    nh_.loginfo("Ooops, no MPR121 detected ... Check your wiring or I2C ADDR!");
     return;
   }
   initialized_ = true;
-  imu_.setExtCrystalUse(true);
-
-  // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
-  imu_msg_.data = (float*)malloc(sizeof(float)*12);
-  imu_msg_.data_length = 12;
+  set_mode(128);
 }
 
-void IMUReader::update() {
+void TouchReader::init(uint8_t touch_baseline, uint8_t touch_threshold, uint8_t release_threshold) {
+  if (!cap_.begin(0x5A, &Wire, touch_threshold, release_threshold)){
+    nh_.loginfo("Ooops, no MPR121 detected ... Check your wiring or I2C ADDR!");
+    return;
+  }
+  initialized_ = true;
+  set_mode(touch_baseline);
+}
+
+void TouchReader::set_mode(uint8_t touch_baseline) {
+  // stop mode
+  cap_.writeRegister(MPR121_ECR, 0b00000000);
+  // set baseline to 128 ( do not remove bit shift)
+  cap_.writeRegister(MPR121_BASELINE_0, touch_baseline >> 2);
+  // use only pin 0
+  cap_.writeRegister(MPR121_ECR, 0b01000001);
+  
+  nh_.loginfo("Touch ready");
+}
+
+void TouchReader::update() {
   if (!initialized_) {
     return;
   }
-  // put int32 as float32
-  auto timestamp = nh_.now();
-  imu_msg_.data[0] = *((float*)(&timestamp.sec));
-  imu_msg_.data[1] = *((float*)(&timestamp.nsec));
+  int touched = cap_.touched();
+  touch_msg_.data = touched;
+  touch_pub_.publish( &touch_msg_ );
   
-  imu::Quaternion q = imu_.getQuat();
-
-  imu_msg_.data[2] = q.x();
-  imu_msg_.data[3] = q.y();
-  imu_msg_.data[4] = q.z();
-  imu_msg_.data[5] = q.w();
-
-  imu::Vector<3> xyz = imu_.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-
-  imu_msg_.data[6] = xyz.x()*D2R;
-  imu_msg_.data[7] = xyz.y()*D2R;
-  imu_msg_.data[8] = xyz.z()*D2R;
-    
-  xyz = imu_.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-
-  imu_msg_.data[9] = xyz.x();
-  imu_msg_.data[10] = xyz.y();
-  imu_msg_.data[11] = xyz.z();
-
-  // publish
-  imu_pub_.publish( &imu_msg_ );
+  raw_msg_.data = cap_.filteredData(0);
+  raw_pub_.publish( &raw_msg_ );
+  
+  vel_msg_.data = (touched & 0x01) ? 2.0 : 0;
+  vel_pub_.publish( &vel_msg_ );
 }

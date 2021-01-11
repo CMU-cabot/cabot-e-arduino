@@ -26,18 +26,18 @@
 #include <ros.h>
 #include <Arduino.h>
 
-#define ENCODER_FREQ 20 // How many times in a second
-
 class SensorReader {
 protected:
-    ros::Publisher pub;
+  ros::NodeHandle &nh_;
+  bool initialized_;
+  
 public:
-    SensorReader(const char * topic_name, ros::Msg * msg)
-        :pub(topic_name, msg)
-    {}
-    virtual void publish(ros::NodeHandle &nh)=0;
-    ros::Publisher& get_publisher(){return pub;}
+SensorReader(ros::NodeHandle &nh):
+  nh_(nh),
+  initialized_(false)
+  {}
+  virtual void init()=0;
+  virtual void update()=0;
 };
-
 
 #endif //ARDUINO_NODE_SENSORREADER_H
