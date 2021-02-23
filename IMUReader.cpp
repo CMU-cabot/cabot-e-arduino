@@ -39,6 +39,10 @@ void IMUReader::calibration() {
 }
 
 void IMUReader::init() {
+  init(NULL);
+}
+
+void IMUReader::init(uint8_t *offsets) {
   if(!imu_.begin())
   {
     nh_.loginfo("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
@@ -46,6 +50,9 @@ void IMUReader::init() {
   }
   initialized_ = true;
   imu_.setExtCrystalUse(true);
+  if (offsets != NULL) {
+    imu_.setSensorOffsets(offsets);
+  }
 
   // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
   imu_msg_.data = (float*)malloc(sizeof(float)*12);

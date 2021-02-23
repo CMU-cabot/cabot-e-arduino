@@ -36,11 +36,12 @@ class IMUReader: public SensorReader {
   std_msgs::UInt8MultiArray calibration_msg_;
   ros::Publisher imu_pub_;
   ros::Publisher calibration_pub_;
-  bool in_calibration_;
+  int in_calibration_;
 public:
   IMUReader(ros::NodeHandle &nh);
   void calibration();
   void init();
+  void init(uint8_t *offsets);
   void update();
 };
 
