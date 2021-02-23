@@ -63,6 +63,8 @@ TouchReader touchReader(nh);
 VibratorController vibratorController(nh, VIB1_PIN, VIB2_PIN, VIB3_PIN, VIB4_PIN);
 Heartbeat heartbeat(LED_BUILTIN, HEARTBEAT_DELAY);
 
+bool calibration_mode = false;
+
 void setup()
 {
   // set baud rate
@@ -71,6 +73,15 @@ void setup()
   // connect to rosserial
   nh.initNode();
   while(!nh.connected()) {nh.spinOnce();}
+
+  if (nh.getParam("calibration_mode", &calibration_mode, 1, 500)) {
+    imuReader.calibration();
+    timer.every(100, [](){
+      bmpReader.update();
+    });
+    return;
+  }
+
 
   int touch_params[3];
   int touch_baseline;

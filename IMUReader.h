@@ -27,14 +27,19 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/UInt8MultiArray.h>
 #include "SensorReader.h"
 
 class IMUReader: public SensorReader {
   Adafruit_BNO055 imu_;
   std_msgs::Float32MultiArray imu_msg_;
+  std_msgs::UInt8MultiArray calibration_msg_;
   ros::Publisher imu_pub_;
+  ros::Publisher calibration_pub_;
+  bool in_calibration_;
 public:
   IMUReader(ros::NodeHandle &nh);
+  void calibration();
   void init();
   void update();
 };
