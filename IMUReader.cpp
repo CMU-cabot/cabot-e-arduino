@@ -49,10 +49,10 @@ void IMUReader::init(uint8_t *offsets) {
     return;
   }
   initialized_ = true;
-  imu_.setExtCrystalUse(true);
   if (offsets != NULL) {
     imu_.setSensorOffsets(offsets);
   }
+  imu_.setExtCrystalUse(true);
 
   // time 2 + orientation 4 + angular_velocy 3 + linear_acceleration 3
   imu_msg_.data = (float*)malloc(sizeof(float)*12);
